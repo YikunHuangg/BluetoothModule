@@ -15,9 +15,12 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -75,6 +78,11 @@ public class MainActivity extends AppCompatActivity implements
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Button btn_scan = findViewById(R.id.btn_scan);
 
+        mPairedDevicesArrayAdapter = new ArrayAdapter<>(this, R.layout.device_item);
+        pairedListView = findViewById(R.id.paired_deivces);
+        pairedListView.setAdapter(mPairedDevicesArrayAdapter);
+        pairedListView.setOnItemClickListener(mDeviceClickListener);
+
         btn_scan.setOnClickListener(v -> {
             //蓝牙发现代码
             discoverDevices();
@@ -83,6 +91,21 @@ public class MainActivity extends AppCompatActivity implements
 
         initPairedListView();
     }
+
+    private AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            //new Thread(new ConnectThread(mDevice)).start();
+            Toast.makeText(MainActivity.this, "Click", Toast.LENGTH_SHORT).show();
+
+            String info = ((TextView) view).getText().toString();
+            String address = info.substring(info.length() -17);
+
+            mDevice = mBluetoothAdapter.getRemoteDevice(address);
+
+            new Thread(new ConnectThread(mDevice)).start();
+        }
+    };
 
     private void initPairedListView() {
         pairedListView = findViewById(R.id.paired_deivces);
@@ -99,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
     }
+
     private void discoverDevices() {
         if (mBluetoothAdapter == null) {
             initBluetoothAdapter();
@@ -126,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements
 
         if (requestCode == REQUEST_ENABLE_BT) {
             if (resultCode != Activity.RESULT_OK) {
-               new ConnectThread(mDevice).start();
+               //new ConnectThread(mDevice).start();
                 Log.d(TAG,"打开蓝牙成功!");
             }
 
@@ -187,7 +211,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onDestroy();
         unregisterReceiver(mReceiver);
     }
-    private class ConnectThread extends Thread {
+
+    private class ConnectThread implements Runnable {
         private final BluetoothSocket mSocket;
         private final BluetoothDevice mDevice;
 
