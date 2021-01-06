@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements
 
         if (requestCode == REQUEST_ENABLE_BT) {
             if (resultCode != Activity.RESULT_OK) {
+               new ConnectThread(mDevice).start();
                 Log.d(TAG,"打开蓝牙成功!");
             }
 
@@ -133,11 +134,10 @@ public class MainActivity extends AppCompatActivity implements
                 Log.d(TAG, "放弃打开蓝牙！");
             }
 
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-            mContext.registerReceiver(mReceiver, filter);
+//            IntentFilter filter = new IntentFilter();
+//            filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+//            mContext.registerReceiver(mReceiver, filter);
 
-            new ConnectThread(mDevice).start();
         } else {
             Log.d(TAG, "打开蓝牙异常！");
             return;
@@ -155,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements
                 mDevice = device;
                 mPairedDevicesArrayAdapter.add(device.getName() + "\n"
                         + device.getAddress());
-
                 mPairedDevicesArrayAdapter.notifyDataSetChanged();
             }
         }
