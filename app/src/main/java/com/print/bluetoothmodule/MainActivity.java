@@ -214,11 +214,10 @@ public class MainActivity extends AppCompatActivity implements
 
     private class ConnectThread implements Runnable {
         private final BluetoothSocket mSocket;
-        private final BluetoothDevice mDevice;
 
         public ConnectThread(BluetoothDevice device) {
             BluetoothSocket tmp = null;
-            mDevice = device;
+            //mDevice = device;
 
             try {
                 tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
